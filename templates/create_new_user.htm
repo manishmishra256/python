@@ -1,0 +1,22 @@
+{% extends "layout.htm"  %}
+{% block body %}
+  <form  action="{{url_for('add_user')}}" method="post">
+    <div class="form-group">
+      <label for="txtName">Name</label>
+      <input type="text" class="form-control" id="txtName" name="name" placeholder="Enter Name" required>
+    </div>
+    <div class="form-group">
+      <label for="txtEmail">Email</label>
+      <input type="email" class="form-control" id="txtEmail" name="email" placeholder="Enter Email" required>
+    </div>
+    <div class="form-group">
+      <label for="txtPassword">Password</label>
+      <input type="password" class="form-control" id="txtPassword" name="password" placeholder="Enter Password" required>
+    </div>
+      <div class="form-group">
+      <label for="txtUsername">Username</label>
+      <input type="text" class="form-control" id="txtUsername" name="username" placeholder="Enter Username" required>
+    </div>
+    <button type="submit" class="btn btn-default">Submit</button>
+  </form>
+{% endblock %}

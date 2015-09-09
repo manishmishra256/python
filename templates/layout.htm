@@ -1,17 +1,71 @@
-<!doctype html>
-<title>Mhara Blog</title>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}">
-<div class="page">
-	<h1>Mhara Blog</h1>
-	<div class="metanav">
-		{% if not session.logged_in %}
-			<a href= "{{ url_for('login')}}">log in</a>
-		{% else %}
-			<a href="{{ url_for('logout')}}">log out </a>
-		{% endif %}
-	</div>
-	{% for message in get_flashed_messages() %}
-		<div class="flash">{{message}} </div>
-	{% endfor %}
-	{% block body %}{% endblock %}
-</div>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <meta name="description" content="">
+	    <meta name="author" content="">
+	    <link rel="icon" href="../../favicon.ico">
+
+		<title>Expanding</title>
+		
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap-theme.min.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css.map')}}">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/custom.css')}}">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css')}}">
+
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.4.min.js')}}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
+	</head>
+	<body>
+		<div class="container-fluid">
+		 <div class="row" style="height:50px"></div>
+	      <div class="header clearfix">
+	        <nav>
+	          <ul class="nav nav-pills pull-right navbar-inver">
+					
+	            <li role="presentation" class="active">
+	            	<a href="#">
+	            		<span class="fa fa-home"></span>&nbsp;Home
+	            	</a>
+	            </li>
+
+	            {% if not session.logged_in %}
+					<li  role="presentation" >
+						<a href= "{{ url_for('login')}}">
+							<span class="fa fa-sign-in"></span>&nbsp;log in
+						</a>
+					</li>
+				{% else %}
+					<li role="presentation">
+						<a role="presentation" href= "{{ url_for('show_users')}}">
+							<span class="fa fa-list-alt"></span>&nbsp;Users
+						</a>
+					</li>
+					<li role="presentation">
+						<a role="presentation" href= "{{ url_for('logout')}}">
+							<span class="fa fa-sign-in"></span>&nbsp;log out
+						</a>
+					</li>
+				{% endif %}
+	          </ul>
+	        </nav>
+	        <h3 class="text-muted">Expanding</h3>
+	      </div>
+	      <div>
+	      		{% for message in get_flashed_messages() %}
+				<div class="flash">{{message}} </div>
+		  </div>
+		   {% endfor %}
+		   {% block body %}{% endblock %}
+
+	      <footer class="footer">
+	        <p>&copy; Company 2014</p>
+	      </footer>
+
+	    </div> <!-- /container -->
+	</body>
+</html>

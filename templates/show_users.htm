@@ -1,0 +1,24 @@
+{% extends "layout.htm"  %}
+{% block body %}
+	<table class="table table-bordered table-stripped">
+		{% if session.logged_in %}
+			<tr>
+				<td colspan="4">
+					<a class="pull-right btn btn-sm btn-success" href="{{url_for('add_user')}}" >
+						<span class="fa fa-plus"></span>&nbsp;Add New
+					</a>
+				 </td>
+			</tr>
+		{% endif %}
+		{% for entry in entries %}
+			<tr>
+				<td>{{entry.name}}</td>
+				<td>{{entry.email}}</td>
+				<td>{{entry.username}}</td>
+				<td>{{entry.role}}</td>
+			</tr>
+		{% else %}
+			<tr><td colspan="4">Unbelievable. No entries here so far</td></tr>
+		{% endfor %}
+	</table>
+{% endblock %}

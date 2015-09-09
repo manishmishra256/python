@@ -3,16 +3,9 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from contextlib import closing
 
-#configuration
-DATABASE = 'C:/wamp/www/Projects/python/flaskr/tmp/flaskr.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
-
 #app code
 app = Flask(__name__)
-app.config.from_object(__name__)
+app.config.from_pyfile('config.cfg')
 
 @app.route('/init')
 def init_db():
@@ -54,6 +47,26 @@ def add_entry():
 	flash('New entry was successfully posted')
 	return redirect(url_for('show_entries')) 
 
+@app.route('/users')
+def show_users():
+	if not session.get('logged_in'):
+		abort(401)
+	cur = g.db.execute('select * from users order by username')
+	entries = [dict(id = row[0], name = row[1], email = row[2], username = row[3], role = row[5]) for row in cur.fetchall()]
+	return render_template('show_users.htm', entries = entries)
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+	if request.method =='GET':
+		return render_template('create_new_user.htm')
+	else:
+		if not session.get('logged_in'):
+			abort(401)
+		g.db.execute('insert into users (name, email, username, password, role) values (?, ?, ?, ?, ?)', 
+			[request.form['name'], request.form['email'], request.form['username'], request.form['password'], 'admin' ])
+		g.db.commit()
+		flash('New user was successfully posted')
+		return redirect(url_for('show_users')) 
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -78,4 +91,3 @@ def logout():
 
 if __name__ == '__main__':
 	app.run()
-

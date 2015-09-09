@@ -1,0 +1,38 @@
+.done-true {
+  text-decoration: line-through;
+  color: grey;
+}
+.cell{
+	background:#ccc;
+}
+
+.cell-black, .cell-white{
+	background-image:url('../img/sprite.png');
+	background-repeat: no-repeat;
+	background-size: 195%;
+	background-color:#ccc;
+}
+
+.cell-black{
+	background-position: 34px 0;
+}
+
+.cell-white{
+	background-position: -158px 0;
+}
+
+.stats .cell-white{
+	background-position: -47px 9px;
+}
+.stats .cell-black{
+	background-position: 9px 9px;
+}
+
+.notification{
+	height:400px;
+	overflow-y:auto;
+}
+.score-flyer{
+	color:green;
+	font-size:2em;
+}
