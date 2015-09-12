@@ -35,7 +35,7 @@ def teardown_request(exception):
 def show_entries():
 	cur = g.db.execute('select title, text from entries order by id desc')
 	entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-	return render_template('show_entries.htm', entries = entries)
+	return render_template('index.htm', entries = entries)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -86,8 +86,21 @@ def login():
 def logout():
 	session.pop('logged_in', None)
 	flash('You were logged out')
-	return redirect(url_for('show_entries'))
+	return redirect(url_for('login'))
 
+
+@app.route('/map')
+def lap():
+	if not session.get('logged_in'):
+		abort(401)
+
+	return render_template('map.htm')	
+
+@app.route('/search')
+def search():
+	if not session.get('logged_in'):
+		redirect(url_for('login'))
+	return render_template('search.htm')
 
 if __name__ == '__main__':
 	app.run()

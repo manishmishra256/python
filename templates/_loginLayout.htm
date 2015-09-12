@@ -1,0 +1,39 @@
+{% extends "_baseLayout.htm" %}
+
+{% block head %}
+	{{super()}}
+	
+	<style>	
+		body{
+			background-image: url('static/img/landing_bg.png');
+		}
+	</style>
+
+{% endblock %}
+
+{% block title %}
+	{{super()}} 
+{% endblock %}
+
+{% block pagesetup %}
+	{{super()}}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-sm-4 col-xs-12 col-sm-offset-4 alert login">
+				<header class="row" >
+					{% block header %}{% endblock %}
+				</header>
+				<div class="row">
+					<div class="col-sm-12" >
+						{% block content %}{% endblock %}
+					</div>
+				</div>
+				<footer class="row" >
+					<div class="col-sm-12">
+						{% block footer %}{% endblock %}
+					</div>
+				</footer>
+			</div>
+		</div>
+	</div>
+{% endblock %}

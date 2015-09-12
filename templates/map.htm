@@ -1,0 +1,163 @@
+{% extends "_authenticatedLayout.htm" %}
+
+
+{% block title %}
+	Search
+{% endblock %}
+
+{% block head %}
+	{{super()}}
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBKrX5VBDJWqME9a0FTyiNLxMPJGhRxPok&libraries=places"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/map-api.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/map-geolocation.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/map-tile.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/masonry.pkgd.min.js')}}"></script>
+	<style>
+		body{
+			background-image: url('static/img/body_bg_white.png');	
+		}
+	</style>
+{% endblock %}
+
+{% block header %}
+		<div>
+			<a href="javascript:myMaps.gl.gotoMyLocation();"  class="btn btn-sm btn-default ">
+				<span class="fa fa-bullseye"></span>
+			</a>
+			<a href="#" data-target="#myModal" data-toggle="modal" data-placement="center"  class="btn btn-sm btn-default ">
+				<span class="fa fa-list"></span>
+			</a>
+
+			{{super()}}
+		</div>
+{% endblock %}
+
+{% block content %}
+	{{super()}}
+	<style>
+		.map-container{
+			margin-top: 22px;
+			padding:5px;
+			border:1px solid #ccc;
+			border-radius: 4px 4px;
+		}
+		.map-container #map{
+			height:650px;
+		}
+	</style>
+	<input type="text" class="form-control" name="location" id="txtLocationSearch" />
+	<div class="map-container">
+		<div id="map"></div>
+		<div class="tileZone">
+			<div class="tileZone-inner">
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+				<div class="box">
+					<div class="box-frame"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block bodyend %}
+	<style>
+		.modal-header{
+			border-bottom: none;
+		}
+		.modal-title{
+
+			color:white;
+			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;	
+		}
+		.modal-body label{
+			color:#445566;
+			font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;	
+			font-size:1.2em;
+		}
+	</style>
+	<div class="modal fade" id="myModal">
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Choose Location</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<form id="formSearchLocation">
+		        <table class="table table-bordered table-stripped">
+				  <tr >
+				  	<td>
+				  		<label>
+					        <input type="radio" data-value="yourlocation" name="areamode" aria-label="...">&nbsp;Your Location
+					    </label>
+					 </td>
+				  </tr>
+				  <tr>
+				  	<td>
+				  		<label>
+					        <input type="radio" data-value="customlocation" name="areamode" aria-label="...">&nbsp;Custom
+					   	</label>
+				   	</td>
+				  </tr>
+				</table>
+	      	</form>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<script type="text/javascript">
+		var myMaps = new googleMaps({'container':'map', 'zoom':4}, function(){//map loaded
+
+				//myMaps.util.modalHandler.open('myModal');
+				myMaps.tile.init();
+		})
+		$(document).ready(function(){
+
+			$('#formSearchLocation input[type=radio]').on('change', function(e){
+
+				var $this = $(this);
+				var  checked = $this.is(":checked");
+				
+				if(!checked)return;
+
+				var mode = $(this).data('value');
+
+
+				switch(mode){
+
+					case "yourlocation":
+						myMaps.gl.gotoMyLocation();
+						break;
+
+					case "customlocation":
+
+						var input = document.getElementById('txtLocationSearch');
+						google.maps.event.trigger(input, 'focus')
+						google.maps.event.trigger(input, 'keydown', {
+						    keyCode: 13
+						});
+
+						break;
+				};
+				$('#myModal').modal('hide');
+				$this.prop('checked', false);
+			});
+		});
+	</script>
+{% endblock %}

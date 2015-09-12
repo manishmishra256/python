@@ -1,0 +1,105 @@
+{% extends "_authenticatedLayout.htm" %}
+
+
+{% block title %}
+	Search
+{% endblock %}
+
+{% block head %}
+	{{super()}}
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBKrX5VBDJWqME9a0FTyiNLxMPJGhRxPok&libraries=places"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/map-api.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/map-geolocation.js')}}"></script>
+	<style>
+		body{
+			background-image: url('static/img/body_bg_white.png');	
+		}
+	</style>
+{% endblock %}
+
+{% block header %}
+		<div style="padding-bottom:10px">
+		<a href="javascript:myMaps.gl.gotoMyLocation();"  class="btn btn-sm btn-default ">
+			<span class="fa fa-bullseye"></span>
+		</a>
+		<a href="#" data-target="#myModal" data-toggle="modal" data-placement="center"  class="btn btn-sm btn-default ">
+			<span class="fa fa-list"></span>
+		</a>
+
+		{{super()}}
+		</div>
+{% endblock %}
+
+{% block content %}
+	{{super()}}
+	<input type="text" class="form-control" name="location" id="txtLocationSearch" />
+	<div id="map"></div>
+{% endblock %}
+
+{% block bodyend %}
+	<div class="modal fade" id="myModal">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Where you want to search?</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<form id="formSearchLocation">
+		        <ul class="nav nav-pills nav-stacked">
+				  <li role="presentation">
+			  		<label>
+				        <input type="radio" data-value="yourlocation" name="areamode" aria-label="...">&nbsp;Your Location
+				    </label>
+				  </li>
+				  <li>
+			  		<label>
+				        <input type="radio" data-value="customlocation" name="areamode" aria-label="...">&nbsp;Custom
+				   	</label>
+				  </li>
+				</ul>
+	      	</form>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<script type="text/javascript">
+		var myMaps = new googleMaps({'container':'map', 'zoom':4}, function(){//map loaded
+
+				myMaps.util.modalHandler.open('myModal');
+		})
+		$(document).ready(function(){
+
+			$('#formSearchLocation input[type=radio]').on('change', function(e){
+
+				var $this = $(this);
+				var  checked = $this.is(":checked");
+				
+				if(!checked)return;
+
+				var mode = $(this).data('value');
+
+
+				switch(mode){
+
+					case "yourlocation":
+						myMaps.gl.gotoMyLocation();
+						break;
+
+					case "customlocation":
+
+						var input = document.getElementById('txtLocationSearch');
+						google.maps.event.trigger(input, 'focus')
+						google.maps.event.trigger(input, 'keydown', {
+						    keyCode: 13
+						});
+
+						break;
+				};
+				$('#myModal').modal('hide');
+				$this.prop('checked', false);
+			});
+		});
+	</script>
+{% endblock %}
