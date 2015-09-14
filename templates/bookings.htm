@@ -1,0 +1,83 @@
+{% extends "_authenticatedLayout.htm" %}
+
+
+{% block title %}
+	Map
+{% endblock %}
+
+{% block head %}
+	{{super()}}
+	<style>
+		body{
+			background-image: url('static/img/body_bg_white.png');	
+		}
+	</style>
+{% endblock %}
+{% block pagewidth %} col-lg-12 {% endblock%}
+{% block header %}
+		<div>
+			<a href="/search" class="btn btn-default btn-sm" title="New Booking">
+				<i class="fa fa-map-o"></i>
+			</a>
+			{{super()}}
+		</div>
+{% endblock %}
+
+{% block content %}
+	{{super()}}
+	<div class="row" style="height:20px"></div>
+	<div class="row">
+		<div class="col-lg-12 col-sm-12 col-xs-12" style="padding:5px;">
+		    <div class="col-sm-3 col-md-3 col-lg-2">
+		        <ul class="nav nav-pills nav-stacked nav-msg">
+		            <li class="active">
+		            <a href="#">
+		                <span class="badge pull-right">{{ entries|length}}</span>
+		                <i class="glyphicon glyphicon-inbox"></i> Active Bookings
+		            </a>
+		            </li>
+		            <li><a href="#"><i class="glyphicon glyphicon-star"></i> Pending</a></li>
+		            <li>
+		            </li>
+		            <li><a href="#"><i class="glyphicon glyphicon-trash"></i> Trash</a></li>
+		        </ul>
+		    </div>
+		    <div class="col-sm-9 col-md-9 col-lg-10">
+		    <table class="table table-stripped">
+				<thead>
+					<th>Store</th>
+					<th>Pets Count</th>
+					<th>Services Availed</th>
+					<th>Rate Applied</th>
+					<th>Status</th>
+					<th>Action</th>
+				</thead>
+				<tbody>
+				{% for entry in entries %}
+						<tr>
+							<td>{{entry.store}}, {{entry.storeaddress}} </td>
+							<td>{{entry.petscount}}</td>
+							<td>{{entry.services}}</td>
+							<td>{{entry.rateapplied}}</td>
+							<td>{{entry.rateapplied}}</td>
+							<td>
+								<button class="btn btn-xs btn-default" title="Cancel"><i class="fa fa-remove"></i></button>
+								<button class="btn btn-xs btn-default" title="Status"><i class="fa fa-bolt"></i></button>
+							</td>
+						</tr>
+					</tr>
+				{% else %}
+					<tr><td colspan="4">No Bookings</td></tr>
+				{% endfor %}
+				</tbody>
+			</table>
+
+		    </div>
+		    <div class="clearfix"></div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block bodyend %}
+	{{super()}}
+{% endblock %}

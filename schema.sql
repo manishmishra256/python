@@ -14,3 +14,18 @@ create table users(
 	password text not null,
 	role text not null
 );
+
+drop table if exists bookings;
+create table bookings(
+	id integer primary key autoincrement,
+	userid integer not null,
+	store text not null,
+	storeaddress text not null,
+	status text not null,
+	starttime text null,
+	timespan text not null,
+	services text not null,
+	petscount text not null,
+	petsdescription text not null,
+	rateapplied text not null
+)

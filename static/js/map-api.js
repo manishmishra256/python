@@ -50,7 +50,44 @@ function googleMaps(options, _callback){
 
  		//subscribe to services
  		self.gl = new geolocation(self, self.map, _callback);
- 		self.tile = new mapTiles();
+ 		//self.tile = new mapTiles();
+ 		self.search = new searchService();
+ 	};
+
+
+ 	function searchService(){
+
+ 		var me = this;
+
+ 		me.currentRecord ={};
+
+ 		me.getJson = function(){
+
+ 			var json = {
+ 				'letmechoose':false,
+ 				'Location':null,
+ 				'services':{
+	 				'food_facility':true,
+	 				'live_stream':true,
+	 				'doc_facility':true,
+	 				'vaccine':true
+ 				},
+ 				'pet_type':[]
+
+ 			};
+
+ 			return json;
+ 		};
+
+ 		me.set = function(j){
+ 			me.currentRecord = j;
+ 			return me.currentRecord;
+ 		};
+
+ 		me.get = function(){
+
+ 			return me.currentRecord;
+ 		};
  	};
 
  	//auto-initialize

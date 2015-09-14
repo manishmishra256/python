@@ -18,26 +18,28 @@
 {% endblock %}
 
 {% block title %}
-	{{super()}} 
+	Search your motive {{super()}} 
 {% endblock %}
 
-{% block header %}
-	{{super()}}
-	<div style="height:300px"></div>
-{% endblock %}
+		{% block header %}
+			{{super()}}
+			<div style="height:365px"></div>
+		{% endblock %}
+		{% block content %}
+			{% if session.logged_in %}
+					<div class="btn btn-default btn-sm btn-block button-style1 " onclick="{window.location='/search';}" >
+						<span class="fa fa-street-view"></span>&nbsp;&nbsp;Find a drop-zone
+					</div>
+					<br />
+					<br />
+					<div class="btn btn-primary btn-sm btn-block button-style1" >
+						<span class="fa fa-paw"></span>&nbsp;&nbsp;Register as a drop-zone
+					</div>
+			{% endif %}
+		{% endblock %}
 
-{% block content %}
-	{% if session.logged_in %}
-			<div class="btn btn-default btn-sm btn-block button-style1 " onclick="{window.location='/search';}" >
-				<span class="fa fa-street-view"></span>&nbsp;&nbsp;Find a drop-zone
-			</div>
-			<br />
-			<br />
-			<div class="btn btn-primary btn-sm btn-block button-style1" >
-				<span class="fa fa-paw"></span>&nbsp;&nbsp;Register as a drop-zone
-			</div>
-	{% endif %}
-{% endblock %}
 
 <!-- footer -->
-{% block footer %} {% endblock %}
+{% block footer %} 
+		{{super()}}
+{% endblock %}

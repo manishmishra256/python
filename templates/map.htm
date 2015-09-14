@@ -2,32 +2,41 @@
 
 
 {% block title %}
-	Search
+	Map
 {% endblock %}
 
 {% block head %}
 	{{super()}}
-	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBKrX5VBDJWqME9a0FTyiNLxMPJGhRxPok&libraries=places"></script>
+	<style type="text/css" src="{{url_for('static', filename='ext/plugins/tbsw/pretty.css')}}"></style>
+	<script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBKrX5VBDJWqME9a0FTyiNLxMPJGhRxPok&libraries=geometry,places, drawing"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/map-api.js')}}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/map-geolocation.js')}}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/map-tile.js')}}"></script>
 	<script type="text/javascript" src="{{ url_for('static', filename='js/masonry.pkgd.min.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='ext/plugins/tbsw/jquery.bootstrap.wizard.min.js')}}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='ext/plugins/tbsw/prettify.js')}}"></script>
+
 	<style>
 		body{
 			background-image: url('static/img/body_bg_white.png');	
 		}
 	</style>
 {% endblock %}
-
+{% block pagewidth %} col-lg-12 {% endblock%}
 {% block header %}
 		<div>
-			<a href="javascript:myMaps.gl.gotoMyLocation();"  class="btn btn-sm btn-default ">
+			<a href="#" data-target="#location-modal" data-toggle="modal" title="Set your location"  class="btn btn-sm btn-default ">
 				<span class="fa fa-bullseye"></span>
 			</a>
-			<a href="#" data-target="#myModal" data-toggle="modal" data-placement="center"  class="btn btn-sm btn-default ">
+			<a href="#" data-target="#myModal" data-toggle="modal" title="Choose Location" data-placement="center"  class="btn btn-sm btn-default ">
 				<span class="fa fa-list"></span>
 			</a>
-
+			<a href="#" data-target="#modal-dashboard" title="My Dashboard" data-toggle="modal" data-placement="center"  class="btn btn-sm btn-default ">
+				<span class="fa fa-dashboard"></span>
+			</a>
+			<a href="/bookings" class="btn btn-default btn-sm" title="My Bookings">
+				<i class="fa fa-list-ol"></i>
+			</a>
 			{{super()}}
 		</div>
 {% endblock %}
@@ -48,26 +57,8 @@
 	<input type="text" class="form-control" name="location" id="txtLocationSearch" />
 	<div class="map-container">
 		<div id="map"></div>
-		<div class="tileZone">
+		<div class="tileZone hide">
 			<div class="tileZone-inner">
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
-				<div class="box">
-					<div class="box-frame"></div>
-				</div>
 			</div>
 		</div>
 	</div>
@@ -75,6 +66,7 @@
 {% endblock %}
 
 {% block bodyend %}
+	{{super()}}
 	<style>
 		.modal-header{
 			border-bottom: none;
@@ -90,74 +82,522 @@
 			font-size:1.2em;
 		}
 	</style>
-	<div class="modal fade" id="myModal">
+
+	<div class="modal fade" id="location-modal">
 	  <div class="modal-dialog">
 	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	        <h4 class="modal-title">Choose Location</h4>
+	        <h4 class="modal-title">Where are you located ?</h4>
 	      </div>
 	      <div class="modal-body">
-	      	<form id="formSearchLocation">
-		        <table class="table table-bordered table-stripped">
-				  <tr >
-				  	<td>
-				  		<label>
-					        <input type="radio" data-value="yourlocation" name="areamode" aria-label="...">&nbsp;Your Location
-					    </label>
-					 </td>
-				  </tr>
-				  <tr>
-				  	<td>
-				  		<label>
-					        <input type="radio" data-value="customlocation" name="areamode" aria-label="...">&nbsp;Custom
-					   	</label>
-				   	</td>
-				  </tr>
-				</table>
-	      	</form>
+	      	<table class="table table-bordered table-stripped">
+	      		<tr>
+	      			<td>
+	      				<input id="autocomplete" placeholder="Enter Your Address" class="form-control"  type="text"></input>
+	      			</td>
+	      			<script type="text/javascript">
+	      				var tempPlace = '';
+						function initAutocomplete() {
+						  autocomplete = new google.maps.places.Autocomplete(
+						      (document.getElementById('autocomplete')),
+						      {types: ['geocode']});
+
+						  autocomplete.addListener('place_changed', function(p){
+
+						  		tempPlace= autocomplete.getPlace();
+						  		///myMaps.gl.options.tempCurrentPosition = place.geometry.location;
+						  });
+						};
+						initAutocomplete();
+						function setTempLoc_click(e){
+
+							if(tempPlace==undefined || tempPlace==null)return;
+
+			      			myMaps.gl.options.tempCurrentPosition = tempPlace.geometry.location;
+			      			myMaps.util.modalHandler.hide('location-modal');
+			      			myMaps.gl.showSetLocation(tempPlace.formatted_address);
+			      			tempPlace = undefined;
+						};
+	      			</script>
+	      		</tr>
+	      	</table>
+	      </div>
+	      <div class="modal-footer">
+	      		<button class="btn btn-primary" onclick="setTempLoc_click()" >OK</button>
 	      </div>
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
 
+	<div class="modal fade" id="myModal" data-backdrop='static'>
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Help us refine your search</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<form id="formSearchLocation">
+	      	  <div class="form-group">
+			    <label>Are you looking for a drop-zone near by you?</label>
+			    <div>
+			    	<input type="radio" id="rdLocation1" checked="true" name="areamode">&nbsp; Yes
+			    </div>
+			    <div>
+				    <input type="radio" id="rdLocation2"  name="areamode">&nbsp; No, let me choose
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="txtLocation">What is your pet like?</label>
+				    <select id="ddlPetsType" name="multiselect[]" multiple="multiple">
+				                <option value="1">Cat</option>
+				                <option value="2">Dog</option>
+				                <option value="3">Bird</option>
+				                <option value="4">Snake</option>
+				                <option value="5">Kangaroo</option>
+				                <option value="6">Tiger</option>
+				    </select>
+			  </div>
+		  		<script type="text/javascript">
+				    $(document).ready(function() {
+				        $('#ddlPetsType').multiselect({
+				            includeSelectAllOption: true,
+				            enableFiltering: true,
+				            numberDisplayed:5
+				        });
+				        $("#example-confirmation").multiselect('select', 2);
+				    });
+				</script>
+				<div class="form-group">
+					<label>Any of the below services you might want?</label>
+					<ul class="nav nav-pills nav-stacked">
+						<li>
+							<div class="checkbox">
+							    <label>
+							      <input type="checkbox" checked="true"> <i class="fa fa-cutlery"></i>&nbsp;Food Facility
+							    </label>
+							  </div>
+						</li>
+						<li>
+							<div class="checkbox">
+							    <label>
+							      <input type="checkbox"><i class="fa fa-video-camera"></i>&nbsp; Live Streaming
+							    </label>
+							  </div>
+						</li>
+						<li>
+							<div class="checkbox">
+							    <label>
+							      <input type="checkbox"> <i class="fa fa-stethoscope"></i>&nbsp; On call doctor facility
+							    </label>
+							  </div>
+						</li>
+						<li>
+							<div class="checkbox">
+							    <label>
+							      <input type="checkbox"><i class="fa fa-map-signs"></i>&nbsp;  Vaccination
+							    </label>
+							  </div>
+						</li>
+					</ul>
+
+				</div>
+				<div class="form-action">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary">
+							<i class="fa fa-search"></i>&nbsp; Search
+						</button>
+					</div>
+					<div class="clearfix"></div>
+
+					<button class="btn btn-link btn-xs">
+						<i class="fa fa-question-circle"></i>&nbsp; You think we missed certain crucial service? Tell us.
+					</button>
+				</div>
+			</form>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<div class="modal fade" id="wizard-modal" data-backdrop='static'>
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title">Booking Procedure</h4>
+			      </div>
+			    <div class="modal-body"> 
+			      	<div id="rootwizard">
+						<div class="navbar" class="hide">
+							<div class="navbar-inner">
+							    <div class="container">
+									<ul class="hide">
+									  	<li><a href="#tab1" data-toggle="tab">Custody Details</a></li>
+										<li><a href="#tab2" data-toggle="tab">Services Pricing</a></li>
+										<li><a href="#tab3" data-toggle="tab">Finish</a></li>
+									</ul>
+								</div>
+								<div class="tab-content">
+								    <div class="tab-pane" id="tab1">
+								    	<h2>Fill in custody details</h2>
+								    	<p>
+								    		<table class="price-list table table-stripped">
+												<tr>
+													<th>For how long you want to drop off? (approx)</th>
+													<td>
+														<select id="ddlTimespan">
+														    <option value="4" selected>4</option>
+														    <option value="6">6</option>
+														    <option value="8">8</option>
+														    <option value="10">10</option>
+														    <option value="12">12</option>
+														    <option value="24">24</option>
+														</select> &nbsp;hours
+
+														<script type="text/javascript">
+														    $('#ddlTimespan').multiselect();
+														</script>
+													</td>
+												</tr>
+												<tr>
+													<th>How many pets?</th>
+													<td>
+														<select id="ddlPetsCount">
+														    <option value="1" selected>1</option>
+														    <option value="2">2</option>
+														    <option value="3">3</option>
+														    <option value="4">4</option>
+														    <option value="5">5</option>
+														    <option value="6">6</option>
+														</select>
+
+														<script type="text/javascript">
+														    $('#ddlPetsCount').multiselect();
+														</script>
+													</td>
+												</tr>
+												<tr>
+													<th>Please describe your pets?</th>
+													<td>
+														<textarea id="txtDescription" class="form-control" placeholder="mmm...they attack!"></textarea>
+													</td>
+												</tr>
+												<tr>
+													<th>Which of the services would you avail?</th>
+													<td class='services-container'>
+														<div style="margin-left:20px;">
+															<div class="checkbox">
+																<input type="checkbox" />Food & Nutrition
+															</div>
+															<div class="checkbox">
+																<input type="checkbox" />Live video feed
+															</div>
+															<div class="checkbox">
+																<input type="checkbox" />Vaccination
+															</div>
+														</div>
+													</td>
+												</tr>
+												<tr>
+													<td colspan="2">
+														<div class="alert alert-warning alert-dismissible" role="alert">
+  															<strong>Note!</strong> The vendor has requested latest medical checkup reports of the pets.
+														</div>
+													</td>
+												</tr>
+								    		</table>
+								    	</p>
+								    </div>
+								    <div class="tab-pane" id="tab2">
+								      <h2>Price distribution list for services offered</h2>
+								    	<p>
+								    		<table class="price-list table table-stripped">
+												<tr>
+													<th>Rate Multiplier</th>
+													<td>2X (peak time)</td>
+												</tr>
+												<tr>
+													<th>Standard Security Deposit</th>
+													<td>Rs 2000</td>
+												</tr>
+												<tr>
+													<th>Food & Nutrition</th>
+													<td>Rs 100</td>
+												</tr>
+												<tr>
+													<th>Live Stream</th>
+													<td>Rs 50</td>
+												</tr>
+												<tr>
+													<th>Vaccination</th>
+													<td>Conditional</td>
+												</tr>
+												<tr>
+													<th>Total</th>
+													<td>Conditional</td>
+												</tr>
+								    		</table>
+								    	</p>
+								    </div>
+									<div class="tab-pane" id="tab3">
+								    	<h2>Summary</h2>
+										<table class="price-list table table-stripped">
+											<tr>
+												<th>Drop Timespan</th>
+												<td>4 hrs</td>
+											</tr>
+											<tr>
+												<th>Services Availed</th>
+												<td>Drop, Food & Nutrition</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<div class="alert alert-success alert-dismissible" role="alert">
+														<strong>Note!</strong> Booking will start once you reach the venue and let the vendor confirm!
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2" style="font-style:normal">
+													<button onclick="bookAndProceed()" class="btn btn-success btn-block">Book & Proceed</button>
+													<br/>
+													<button class="btn btn-warning btn-block">Oh! Forget it</button>
+												</td>
+											</tr>
+										</table>
+								    </div>
+									<ul class="pager wizard">
+										<li class="previous"><a href="javascript:;">Previous</a></li>
+									  	<li class="next"><a href="javascript:;">Next</a></li>
+										<li class="finish"><a href="javascript:;">Finish</a></li>
+									</ul>
+								</div>
+							</div>
+			      		</div>
+			   		 </div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function() {
+		  	$('#rootwizard').bootstrapWizard({
+
+		  		'onTabShow': function(tab, navigation, index) {
+							
+					var $total = navigation.find('li').length;
+					var $current = index+1;
+					var $percent = ($current/$total) * 100;
+					$('#rootwizard').find('.bar').css({width:$percent+'%'});
+					
+					// If it's the last tab then hide the last button and show the finish instead
+					if($current >= $total) {
+						$('#rootwizard').find('.pager .next').hide();
+						$('#rootwizard').find('.pager .finish').show();
+						$('#rootwizard').find('.pager .finish').removeClass('disabled');
+					} else {
+						$('#rootwizard').find('.pager .next').show();
+					}		
+
+					$('#rootwizard').find('.pager .finish').hide();
+
+				},	
+		  		
+		  		'onTabClick':function(tab, navigation, index){
+		  			return false;
+		  		}
+		  	});
+		});
+	</script>
+
+	<div class="modal fade" id="modal-dashboard">
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Dashboard</h4>
+	      </div>
+	      <div class="modal-body">
+	      	   <!-- Nav tabs -->
+			  <ul class="nav nav-tabs" id="myTabs" role="tablist">
+				    <li role="presentation" class="active">
+				    	<a href="#tabActiveSessions" aria-controls="tabActiveSessions" role="tab" data-toggle="tab">Active Sessions</a>
+				    </li>
+				    <li role="presentation">
+				    	<a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a>
+				    </li>
+				    <li role="presentation">
+				    	<a href="#tabNotifications" aria-controls="tabNotifications" role="tab" data-toggle="tab">Notifications</a>
+				    </li>
+				    <li role="presentation">
+				    	<a href="#tabSettings" aria-controls="tabSettings" role="tab" data-toggle="tab">Settings</a>
+				    </li>
+			  </ul>
+
+		  	  <!-- Tab panes -->
+			  <div class="tab-content">
+			    <div role="tabpanel" class="tab-pane active" id="tabActiveSessions">
+			    	<br/>
+			    	<table class="table table-bordered table-striped">
+			    		<thead>
+			    			<tr>
+			    				<th>Col 1</th>
+			    				<th>Col 2</th>
+			    				<th>Col 3</th>
+			    			</tr>
+			    		</thead>
+			    		<tbody>
+			    			<tr>
+			    				<td>d 1</td>
+			    				<td>d 22 </td>
+			    				<td>d 3</td>
+			    			</tr>
+			    			<tr>
+			    				<td>d 1</td>
+			    				<td>d 22 </td>
+			    				<td>d 3</td>
+			    			</tr>
+			    			<tr>
+			    				<td>d 1</td>
+			    				<td>d 22 </td>
+			    				<td>d 3</td>
+			    			</tr>
+			    		</tbody>
+			    	</table>
+			    </div>
+			    <div role="tabpanel" class="tab-pane" id="profile">...</div>
+			    <div role="tabpanel" class="tab-pane" id="tabNotifications">...</div>
+			    <div role="tabpanel" class="tab-pane" id="tabSettings">...</div>
+			  </div>	
+			  <script type="text/javascript">
+			  	$('#myTabs a').click(function (e) {
+					  e.preventDefault()
+					  $(this).tab('show')
+				});
+			  </script>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<div class="modal fade" id="error-modal">
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_red.png');">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Error</h4>
+	      </div>
+	      <div class="modal-body">
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<div class="modal fade" id="loading-modal" data-backdrop="static" >
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+	    	<div class="modal-header">
+	    	<button type="button" class="close hide" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title"></h4>
+	      	</div>
+	      <div class="modal-body" style="color:#333">
+      			<span class="fa fa-refresh fa-spin"></span>&nbsp;...<span class='modal-text'></span>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<div class="modal fade" id="msg-modal">
+	  <div class="modal-dialog">
+	    <div class="modal-content" style="background-image: url('static/img/body_bg_white.png');">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title"></h4>
+	      </div>
+	      <div class="modal-body" style="color:#333">
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
 	<script type="text/javascript">
 		var myMaps = new googleMaps({'container':'map', 'zoom':4}, function(){//map loaded
 
-				//myMaps.util.modalHandler.open('myModal');
-				myMaps.tile.init();
+				myMaps.util.modalHandler.open('myModal');
+				//myMaps.tile.init();
 		})
+		var userInput=undefined;
 		$(document).ready(function(){
 
-			$('#formSearchLocation input[type=radio]').on('change', function(e){
+			$('button[type=submit]', '#formSearchLocation').on('click', function(e){
 
-				var $this = $(this);
-				var  checked = $this.is(":checked");
+				e.preventDefault();
 				
-				if(!checked)return;
+				if(userInput==undefined)
+					userInput = myMaps.search.getJson();
 
-				var mode = $(this).data('value');
+				var form = $(this).closest('form');
+				userInput.letmechoose = $($('input[type=radio]', form)[1]).is(":checked");
 
-
-				switch(mode){
-
-					case "yourlocation":
+				if(!userInput.letmechoose){
+					myMaps.gl.setCurrentPosition();
+					setTimeout(function(){
 						myMaps.gl.gotoMyLocation();
-						break;
-
-					case "customlocation":
-
-						var input = document.getElementById('txtLocationSearch');
-						google.maps.event.trigger(input, 'focus')
-						google.maps.event.trigger(input, 'keydown', {
-						    keyCode: 13
-						});
-
-						break;
-				};
-				$('#myModal').modal('hide');
-				$this.prop('checked', false);
+						myMaps.gl.searchNearByMe();
+						myMaps.util.modalHandler.hide('myModal');
+					},600);
+				}
 			});
 		});
 	</script>
+	<script type="text/javascript">
+
+		function bookAndProceed(){
+
+			myMaps.util.modalHandler.loader('Processing', 'Processing Your Request');
+			myMaps.util.modalHandler.hide('wizard-modal');
+			var arr = [];
+			var query = '.services-container input[type=checkbox]:checked';
+
+			$(query).each(function(i,v){
+				arr.push($(v).closest('.checkbox').text().trim());
+			});
+
+			if(arr.length==0)arr.push('none');
+
+			var obj ={
+				'status':'Pending',
+				'services':arr.join(','),
+				'store':$('.head-text').text(),
+				'storeaddress':$('.head-desc').text(),
+				'starttime':'12-12-12',
+				'timespan':$('#ddlTimespan').val(),
+				'petscount':$('#ddlPetsCount').val(),
+				'petsdescription':$('#txtDescription').val(),
+				'rateapplied':'2'	
+			};
+
+			$.when($.ajax({
+				url:'/addbooking',
+				type:'POST',
+				data:JSON.stringify(obj, null, '\t'),
+				contentType: "application/json; charset=utf-8",
+			}))
+			.done(function(data){
+				myMaps.util.modalHandler.updateText('loading-modal','Success', data);
+				setTimeout(function(){
+					myMaps.util.modalHandler.updateText('loading-modal','Success', 'Redirecting...');
+					$('#loading-modal .modal-body').prepend('<span class="fa fa-refresh fa-spin"></span>&nbsp;');
+					window.location.href = '/bookings';
+				},2000);
+			})
+			.fail(function(xhr, error){
+				myMaps.util.modalHandler.error('Error', xhr.statusText);
+			});
+		};
+
+
+	</script>
+
 {% endblock %}

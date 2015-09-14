@@ -1,5 +1,5 @@
-{% extends "layout.htm"  %}
-{% block body %}
+{% extends "_baseLayout.htm"  %}
+{% block pagesetup %}
   <form  action="{{url_for('add_user')}}" method="post">
     <div class="form-group">
       <label for="txtName">Name</label>

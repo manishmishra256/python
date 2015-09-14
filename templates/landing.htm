@@ -1,0 +1,57 @@
+{% extends "_loginLayout.htm" %}
+
+{% block head %} 
+	{{super()}}
+	<style>
+		header{
+			background-image: url('static/img/logo.png');
+			background-size: 60%;
+			background-repeat: no-repeat;
+			background-position: center;	
+		}
+	</style>
+ {% endblock %}
+
+{% block title %} Login{% endblock %}
+
+{% block header %}
+	<div class="col-sm-12" style="height: 365px;">
+		
+	</div>
+{% endblock %}
+
+{% block content %}
+	<form action="{{ url_for('login')}}"  method="POST" >
+		<div class="input-group">
+		  <span class="input-group-addon" id="basic-addon1">
+		  	<i class="fa fa-user"></i>
+		  </span>
+		  <input type="text" id="txtUsername" name="username" class="form-control" placeholder="Username" aria-describedby="basic-addon1">
+		</div>
+		<br/>
+		<div class="input-group">
+		  <span class="input-group-addon" id="basic-addon2" >
+		  	<i class="fa fa-code"></i>
+		  </span>
+		  <input type="password" id="txtPassword" name="password" class="form-control" placeholder="Password" aria-describedby="basic-addon2">
+		</div>
+		<br/>
+		<div class="pull-right">
+			<button type="submit" class="btn btn-default"><span class="fa fa-sign-in"></span>&nbsp;Sign in</button>
+		</div>
+		<div class="clearfix"></div>
+		<hr>
+		<div class="form-group" style="text-align:center">
+			<button class="btn btn-primary" >
+				<span class="fa fa-facebook"></span>&nbsp;Facebook
+			</button>
+			<button class="btn btn-info" >
+				<span class="fa fa-twitter"></span>&nbsp;Twitter
+			</button>
+			<button class="btn btn-danger" >
+				<span class="fa fa-google-plus"></span>&nbsp;Google
+			</button>
+		</div>
+	</form>
+
+{% endblock %}

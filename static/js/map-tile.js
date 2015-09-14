@@ -49,6 +49,8 @@ function mapTiles(options){
 
 	me.init = function(){
 
+		me.settings.elementsProvider.container.parent().removeClass('hide');
+
 		var slides = me.settings.elementsProvider.slides();
 
 		if(slides.length>0){
@@ -57,7 +59,7 @@ function mapTiles(options){
 			var count=0;
 			$('.box-frame', slides).each(function(i,v){
 
-				$(v).text(++count);
+				//$(v).text(++count);
 			});
 
 			var count = me.settings.slideSelector;
@@ -81,26 +83,26 @@ function mapTiles(options){
 
 	me.process = function(slides){//slides must be jQuery augmented object
  
- 		slides.data('shown','false');
 		slides.hide();
 
-		var isRequired = me.isNavRequired();
+		//isNavRequired sets the adjustedCount, which is being used below
+		var isRequired = me.isNavRequired(slides);
 
-		slides.slice(0, me.settings.nav.adjustedCount).data('shown', isRequired).show();
+		slides.slice(0, me.settings.nav.adjustedCount).show();
 
 		//add nav -- only if required
 		if(isRequired)
 			me.addNavigation();
 	};
 
-	me.isNavRequired = function(){
+	me.isNavRequired = function(slides){
 
 		var onewidth = $(me.settings.selectors.slide).width() + me.settings.nav.constants.gutter + 20;
 		var availableWidth = $(window).width();
 		var nav = me.settings.nav;
 		nav.rm = nav.adjustedCount = parseInt(availableWidth/(onewidth));
 
-		return (me.settings.slidesCount > me.settings.nav.adjustedCount);
+		return (slides.length > me.settings.nav.adjustedCount);
 	};
 
 	me.navHandles ={};
@@ -118,7 +120,10 @@ function mapTiles(options){
 				me.rightClick(e);
 				break;
 		}
-
+	});
+	//register resize
+	$(window).resize(function(e){
+		//me.init();
 	});
 
 	me.leftClick = function(e){
@@ -126,12 +131,12 @@ function mapTiles(options){
 		var slides = me.settings.elementsProvider.slides();
 		if(me.settings.nav.lm==0)return;
 
-		me.settings.nav.lm -=1;
-		slides.eq(me.settings.nav.lm).show();
 
 		me.settings.nav.rm -=1;
-		slides.eq(me.settings.nav.rm).hide();
+		slides.eq(me.settings.nav.rm).fadeOut(500);
 
+		me.settings.nav.lm -=1;
+		slides.eq(me.settings.nav.lm).fadeIn(500);
 	};
 
 	me.rightClick = function(e){
@@ -142,11 +147,11 @@ function mapTiles(options){
 		
 		var slides = me.settings.elementsProvider.slides();
 
-		slides.eq(me.settings.nav.rm).show();
-		me.settings.nav.rm +=1;
-
-		slides.eq(me.settings.nav.lm).hide();
+		slides.eq(me.settings.nav.lm).fadeOut(500);
 		me.settings.nav.lm +=1;
+
+		slides.eq(me.settings.nav.rm).fadeIn(500);
+		me.settings.nav.rm +=1;
 	};
 
 	me.addNavigation = function(){
@@ -174,7 +179,9 @@ function mapTiles(options){
 			case 'image-frame':
 				
 				var box = $('<div class="box"></div>');
-				box.append($('<div class="box-frame" ></div>'))
+				var frame =$('<div class="box-frame" ></div>'); 
+				frame.append($('<button class="btn btn-link btn-xs box-launch"><i class="fa fa-angle-double-up"></i></button>'))
+				box.append(frame);
 
 				var id = ['__', myMaps.util.randomString(7), '__'].join('');
 				box.attr('id', id);
@@ -186,6 +193,10 @@ function mapTiles(options){
 				return nav;
 
 		}		
+	};
 
+	me.destroy = function(){
+
+		me.settings.elementsProvider.container.empty().parent().addClass('hide');
 	}
 };

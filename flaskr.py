@@ -30,12 +30,18 @@ def teardown_request(exception):
 	if db is not None:
 		db.close()
 
+@app.route('/index')
+def index():
+	if not session.get('logged_in'):
+		return redirect(url_for('login'))
+
+	return render_template('index.htm')
 
 @app.route('/')
 def show_entries():
-	cur = g.db.execute('select title, text from entries order by id desc')
-	entries = [dict(title=row[0], text=row[1]) for row in cur.fetchall()]
-	return render_template('index.htm', entries = entries)
+	if not session.get('logged_in'):
+		return redirect(url_for('login'))
+	return render_template('index.htm')
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -78,16 +84,20 @@ def login():
 			error = 'Invalid Password'
 		else:
 			session['logged_in'] = True
-			flash('you are logged in')
+			cur = g.db.execute('select id from users where username = ?', [app.config['USERNAME']])
+			row = cur.fetchone()
+			if row is not None:
+				session['logged_in_id'] = row[0] 
+
 			return redirect(url_for('show_entries'))
 	return render_template('login.htm', error = error)
 
 @app.route('/logout')
 def logout():
 	session.pop('logged_in', None)
+	session.pop('logged_in_id', None)
 	flash('You were logged out')
 	return redirect(url_for('login'))
-
 
 @app.route('/map')
 def lap():
@@ -100,7 +110,43 @@ def lap():
 def search():
 	if not session.get('logged_in'):
 		redirect(url_for('login'))
-	return render_template('search.htm')
+	return render_template('map.htm')
+
+@app.route('/subscribe', methods=['POST'])
+def subscribeTemplate():
+	if not session.get('logged_in'):
+		abort(401)
+	return render_template('subscribe.htm');
+
+@app.route('/bookings')
+def bookings():
+		if not session.get('logged_in'):
+			return redirect(url_for('login'))
+
+		cur = g.db.execute('select * from bookings where userid = ?', [1])
+		entries = [dict(id = row[0], userid = row[1], store=row[2],storeaddress=row[3], status = row[4], starttime = row[5], timespan = row[6], services=row[7], petscount=row[8], petsdescription=row[9], rateapplied=row[10]) for row in cur.fetchall()]
+		return render_template('bookings.htm', entries = entries)
+
+@app.route('/addbooking', methods=['POST'])
+def addbooking():
+	if not session.get('logged_in'):
+		abort(401)
+
+	g.db.execute('insert into bookings (userid, store, storeaddress, status, timespan, services, petscount, petsdescription, rateapplied) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+		[1, 
+		request.json['store'],
+		request.json['storeaddress'],
+		request.json['status'],
+		request.json['timespan'],
+		request.json['services'],
+		request.json['petscount'],
+		request.json['petsdescription'],
+		2
+		])
+	
+	g.db.commit()
+	return "Booking done successfully.." 	
+
 
 if __name__ == '__main__':
 	app.run()

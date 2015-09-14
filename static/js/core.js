@@ -156,6 +156,7 @@ function utility(){
 			var overlay = obj.raw();
 			overlay.show();
 			$(container).append(overlay);
+			return overlay;
 		};
 
 		obj.remove = function(){
@@ -204,6 +205,47 @@ function modalHandler(){
 	me.hide = function(id){
 		$('#'+id).modal('hide');
 	}
+
+	me.error = function(title, msg){
+
+		var id ="error-modal";
+		var body = $('.modal-body','#'+id);
+		me.openWithMessage(id, title, msg);
+		body.css({'color':'#fff', 'font-size':'1.2em'});
+	};
+
+	me.updateText = function(id, title, msg){
+
+		var body = $('.modal-body','#'+id);
+		body.text(msg);
+
+		var t = $('.modal-title', '#' + id);
+		t.text(title);		
+	};
+
+	me.loader = function(title, msg){
+
+		var id ="loading-modal";
+		var body = $('.modal-text','#'+id);
+		body.text(msg);
+		$('.modal-title',id).text(title);
+		me.open(id);
+	};
+
+	me.info = function(title, msg){
+
+		var id ="msg-modal";
+		me.openWithMessage(id, title, msg);	
+	};
+
+	me.openWithMessage = function(id, title, msg){
+
+		id = id.indexOf('#') > 0 ?id:'#' + id;
+		var body = $('.modal-body',id);
+		body.text(msg);
+		$('.modal-title',id).text(title);
+		me.open(id.replace('#',''));
+	};
 };
 
 //class to control masonry
